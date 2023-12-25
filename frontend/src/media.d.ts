@@ -1,0 +1,9 @@
+declare module '*.svg';
+declare module '*.jpeg';
+declare module '*.jpg';
+declare module '*.png';
+declare module '*.webp';
+declare module '*.js';
+declare module '*.min.js';
+declare module '*.bundle.min.js';
+declare module '*.css';

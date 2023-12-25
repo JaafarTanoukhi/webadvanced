@@ -1,11 +1,13 @@
-module.exports = {
-  content: ['./src/**/*.{html,js,jsx,ts,tsx,css,scss}'],
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html","./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily:{
+        'Rob':['Roboto','sans-serif']
+      }
+    },
   },
   plugins: [],
-  purge: {
-    enabled: true,
-    content: ['./src/**/*.{html,js,jsx,ts,tsx,css,scss}'],
-  },
-};
+}
+
