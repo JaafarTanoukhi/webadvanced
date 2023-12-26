@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import BackgroundImage from "../../assets/imgs/LoginPageBackground.jpg";
+import BackgroundImage from "../../assets/imgs/LoginPageBackground.webp";
 import Login from "./Login";
 import { useParams } from "react-router-dom";
 import Register from "./Register";

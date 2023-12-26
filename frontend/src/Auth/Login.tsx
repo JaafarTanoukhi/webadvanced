@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { FormSeperator, Input } from "./shared";
+import { Formik,Form } from "formik";
+import Yup from 'yup'
 
 export default function Login() {
   return (
@@ -9,8 +11,12 @@ export default function Login() {
           <div className="w-full mt-5 h-1/4 p-2 text-center text-7xl font-black font-Rob text-violet-500">LOGIN</div>
           <hr className="mb-5"></hr>
           <div className="flex justify-center gap-2 items-start flex-col">
+            <Formik>
+              <Form>
             <Input placeholder="Username or Email"></Input>
             <Input placeholder="Password" type="password"></Input>
+              </Form>
+            </Formik>
           </div>
           <div className="text-center m-5 font-medium text-violet-950">
             <Link className="opacity-20 hover:opacity-100" to={"/auth/forgetpassword"}>
