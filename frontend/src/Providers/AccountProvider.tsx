@@ -1,37 +1,39 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-export type SignInCredentials={
-    username_email:string,
-    password:string
+const localStorageToken = "CURRENTACCOUNTTOKEN";
+
+export type SignInCredentials = {
+    username_email: string,
+    password: string
 }
 
-export type RegisterCredentials={
-    firstname:string,
-    lastname:string,
-    birthdate:string,
-    email:string,
-    username:string,
-    passsword:string
+export type RegisterCredentials = {
+    firstname: string,
+    lastname: string,
+    birthdate: string,
+    email: string,
+    username: string,
+    passsword: string
 }
 
-export type RecoverAccountCredentials={
-    recoverCode:string,
-    newPassword:string
+export type RecoverAccountCredentials = {
+    recoverCode: string,
+    newPassword: string
 }
 
-type AccountContextProvs={
-CreateAccount:(_:RegisterCredentials)=>Promise<number|undefined>,
-SignIn:(_:SignInCredentials)=>Promise<string>,
-SendRecoverEmail:(_:{email:string})=>Promise<Response>
-RecoverAccount:(_:RecoverAccountCredentials)=>Promise<Response>
-currentAccountToken:string
+type AccountContextProvs = {
+    RegisterAccount: (_: RegisterCredentials) => Promise<void>,
+    SignIn: (_: SignInCredentials) => Promise<void>,
+    SendRecoverEmail: (_: { email: string }) => Promise<Response>
+    RecoverAccount: (_: RecoverAccountCredentials) => Promise<Response>
+    currentAccountToken: string
 }
-const AccountContext=createContext<AccountContextProvs>({
+const AccountContext = createContext<AccountContextProvs>({
     currentAccountToken: "",
-    CreateAccount: function (_: RegisterCredentials): Promise<number|undefined> {
+    RegisterAccount: function (_: RegisterCredentials): Promise<void> {
         throw new Error("Function not implemented.");
     },
-    SignIn: function (_: SignInCredentials): Promise<string> {
+    SignIn: function (_: SignInCredentials): Promise<void> {
         throw new Error("Function not implemented.");
     },
     SendRecoverEmail: function (_: { email: string; }): Promise<Response> {
@@ -42,46 +44,92 @@ const AccountContext=createContext<AccountContextProvs>({
     }
 });
 
-export function useAuth(){
+export function useAuth() {
     return useContext(AccountContext)
 }
 
-export default function AccountProvider({children}:{children:any}){
-    const [currentAccountToken,setCurrentAccountToken]=useState<string>("");
+export default function AccountProvider({ children }: { children: any }) {
+    const [currentAccountToken, setCurrentAccountToken] = useState<string>("");
 
-    async function SignIn(cred:SignInCredentials){
-        const response=await fetch(`${import.meta.env.VITE_SERVERURL}/login`,{
-            headers:{
-                "Content-Type":"application/json"
-            },
-            method:'post',
-            body:JSON.stringify(cred),
-            mode:'cors'
-        });
-        if(response) return (await response.json()).id
-        return undefined;
+    function setToken(newToken:string){
+        setCurrentAccountToken(newToken);
+        localStorage.setItem(localStorageToken,newToken);
     }
 
-    useEffect(()=>{
-        const currentAccountToken=localStorage.getItem('currentAccountToken')
-    },[])
+    async function SignIn(cred: SignInCredentials) {
+        const response = await SignInToServer(cred);
+        if (response.ok) setToken((await response.json()).id)
+        setToken("");
+    }
+
+    async function RegisterAccount(cred:RegisterCredentials){
+        const response=await CreateAccount(cred);
+        if(response.ok) setToken((await response.json()).id)
+        setToken("")
+    }
+
+    useEffect(() => {
+        const currentAccountToken = localStorage.getItem(localStorageToken);
+        if (currentAccountToken)
+            setCurrentAccountToken(currentAccountToken);
+
+    }, [])
 
     return (
-        <AccountContext.Provider value={{CreateAccount:CreateAccount,SignIn:SignIn,currentAccountToken:currentAccountToken}}>
+        <AccountContext.Provider value={{ RegisterAccount: RegisterAccount, SignIn: SignIn, currentAccountToken: currentAccountToken, RecoverAccount: RecoverAccount,SendRecoverEmail:SendRecoverEmail }}>
             {children}
         </AccountContext.Provider>
     )
 }
 
-async function CreateAccount(cred:RegisterCredentials):Promise<number|undefined>{
-    const response=await fetch(`${import.meta.env.VITE_SERVERURL}/register`,{
-        headers:{
-            "Content-Type":"application/json"
+async function CreateAccount(cred: RegisterCredentials) {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/register`, {
+        headers: {
+            "Content-Type": "application/json"
         },
-        method:'post',
-        body:JSON.stringify(cred),
-        mode:'cors'
+        method: 'post',
+        body: JSON.stringify(cred),
+        mode: 'cors'
     });
-    if(response) return (await response.json()).id
-    return undefined;
+
+    return response;
+}
+
+async function RecoverAccount(cred: RecoverAccountCredentials) {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/recover`, {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: 'post',
+        body: JSON.stringify(cred),
+        mode: 'cors'
+    });
+
+    return response;
+}
+
+async function SignInToServer(cred: SignInCredentials) {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/login`, {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: 'post',
+        body: JSON.stringify(cred),
+        mode: 'cors'
+    });
+
+    return response;
+}
+
+async function SendRecoverEmail(cred:{email:string}){
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/sendrecoveremail`, {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: 'post',
+        body: JSON.stringify(cred),
+        mode: 'cors'
+    });
+
+    return response;
 }

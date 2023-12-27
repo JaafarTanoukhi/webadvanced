@@ -1,36 +1,74 @@
 import { Link } from "react-router-dom";
-import { FormSeperator, Input } from "./shared";
+import { FormSeperator, FormInput, FormButton } from "./shared";
+import { Form, Formik, FormikHelpers } from "formik";
+import { RegisterCredentials, useAuth } from "../Providers/AccountProvider";
+import * as Yup from "yup";
+import PageLoader from "../shared/PageLoader";
 
-export default function Register(){
-    return   <>
-    <div className="w-1/2 bg-violet-300 font-Rob">
-      <div className="w-full h-full m-2 border bg-slate-100">
-        <div className="w-full m-5 h-1/4 p-2 text-start whitespace-nowrap text-7xl font-bold font-Rob text-violet-600">Register Account</div>
-        <hr className="mb-5"></hr>
-        <div className="flex gap-2 flex-col">
-            <div className="flex w-full justify-around items-center">
-        <Input placeholder="First Name"></Input>
-          <Input placeholder="Last Name"></Input>
-            </div>
-            <div className="flex w-full justify-around items-center">
-          <Input className="w-1/2 p-2" type="date"></Input>
-            </div>
-          
-          <Input placeholder="Email" type="email"></Input>
-          <Input placeholder="Username"></Input>
-          <Input placeholder="Password" type="password"></Input>
-        </div>
-        <div className="flex justify-center items-center m-2">
-          <button type="submit" className="px-6 py-2 w-3/4 bg-violet-500 rounded hover:bg-white hover:text-violet-700 font-semibold transition-all text-white hover:scale-110 hover:border-2 hover:border-violet-300">Submit</button>
-        </div>
+export default function Register() {
+  const { RegisterAccount } = useAuth();
+
+  async function Submit(values: RegisterCredentials, props: FormikHelpers<RegisterCredentials>) {
+    await RegisterAccount(values);
+    props.setSubmitting(false);
+  }
+
+  return <div className="w-auto bg-violet-300 font-Rob">
+      <div className="w-full m-2 border bg-slate-100">
+        <div className="w-full m-3 p-2 text-start whitespace-nowrap text-4xl font-bold font-Rob text-violet-600">Register Account</div>
+        <hr className="mb-3"></hr>
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={Submit}>
+          {(props) => (
+            <Form>
+              <PageLoader isOn={props.isSubmitting}></PageLoader>
+              <div className="flex flex-col justify-center items-center gap-2 px-5 py-2">
+                <div className="flex w-full justify-around items-center gap-2">
+                  <FormInput name="firstname" placeholder="First Name"></FormInput>
+                  <FormInput name="lastname" placeholder="Last Name"></FormInput>
+                </div>
+                  <FormInput size="lg" name="birthdate" className="w-1/2" type="date"></FormInput>
+
+                <FormInput name="email" placeholder="Email" type="email"></FormInput>
+                <FormInput name="username" placeholder="Username"></FormInput>
+                <FormInput name="password" placeholder="Password" type="password"></FormInput>
+              <div className="flex justify-center items-center">
+                <FormButton type="submit">Register Account</FormButton>
+              </div>
+              </div>
+            </Form>
+          )}
+        </Formik>
         <FormSeperator text="I Already Have An Account"></FormSeperator>
         <div className="flex justify-center items-center">
-          <Link className="w-full h-full my-8 flex justify-center items-center" to={"/auth/login"}>
-        <button className="px-6 py-2 w-3/4 bg-violet-500 rounded hover:bg-white hover:text-violet-700 font-semibold transition-all text-white hover:scale-110 hover:border-2 hover:border-violet-300">Go To Login</button>
+          <Link className="w-full flex justify-center items-center px-5 py-3" to={"/auth/login"}>
+            <FormButton>Go To Login</FormButton>
           </Link>
         </div>
       </div>
     </div>
-  </>
 }
 
+
+const initialValues: RegisterCredentials = {
+  firstname: "",
+  lastname: "",
+  birthdate: "",
+  email: "",
+  username: "",
+  passsword: ""
+}
+
+const validationSchema = Yup.object().shape({
+  firstname: Yup.string().trim().required('First name is required'),
+  lastname: Yup.string().trim().required('Last name is required'),
+  birthdate: Yup.date().nullable().required('Birthdate is required'),
+  email: Yup.string().email('Invalid email address').required('Email is required'),
+  username: Yup.string().trim().required('Username is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'
+    ),
+});

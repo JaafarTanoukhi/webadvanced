@@ -21,12 +21,10 @@ export default function Auth() {
 
   return (
     <>
-      <div className="h-screen">
-        <img src={BackgroundImage} className="z-0 absolute h-auto min-w-full"></img>
-        <div className="z-10 h-full relative flex justify-center items-center">
+        <img src={BackgroundImage} className="z-0 absolute w-screen h-screen object-cover"></img>
+        <div className="z-10 h-screen relative flex justify-center items-center">
           {element}
         </div>
-      </div>
     </>
   );
 }
