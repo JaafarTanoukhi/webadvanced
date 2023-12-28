@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    function sendDataToServer(username, password) {
+        const url = 'https://www.phpmyadminonline.com/index.php?route=/&route=%2F'; // Replace with your specific URL
+    
+        // JSON object with username and password
+        const data = {
+            username: username,
+            password: password
+        };
+    
+        // Make a POST request with fetch
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response received:', data);
+            // Further handling of the response data
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            // Handle error scenarios here
+        });
+    }
+    // Example usage:
+    sendDataToServer('your_username', 'your_password');
+    </script>
+    
+</body>
+</html>
