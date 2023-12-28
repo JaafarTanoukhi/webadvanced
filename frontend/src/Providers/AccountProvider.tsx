@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import debugResponse from "./debug";
 
 const localStorageToken = "CURRENTACCOUNTTOKEN";
 
@@ -83,41 +84,41 @@ export default function AccountProvider({ children }: { children: any }) {
 }
 
 async function CreateAccount(cred: RegisterCredentials) {
-    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/register`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/register.php`, {
         headers: {
             "Content-Type": "application/json"
         },
         method: 'post',
         body: JSON.stringify(cred),
-        mode: 'cors'
+        mode: 'no-cors'
     });
 
     return response;
 }
 
 async function RecoverAccount(cred: RecoverAccountCredentials) {
-    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/recover`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/recover.php`, {
         headers: {
             "Content-Type": "application/json"
         },
         method: 'post',
         body: JSON.stringify(cred),
-        mode: 'cors'
+        mode: 'no-cors'
     });
 
     return response;
 }
 
 async function SignInToServer(cred: SignInCredentials) {
-    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/login`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVERURL}/login.php`, {
         headers: {
             "Content-Type": "application/json"
         },
         method: 'post',
         body: JSON.stringify(cred),
-        mode: 'cors'
+        mode: "cors"
     });
-
+    debugResponse(response);
     return response;
 }
 
